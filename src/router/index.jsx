@@ -9,11 +9,9 @@ import BlogLayout from "../layouts/Blog";
 import Welcome from '../views/welcome/Main'
     
 import Blog from '../views/blog/blog.md'   
-import Vibegraph from '../views/blog/vibegraph.md'   
-import DegenSql from '../views/blog/degen-sql.md'   
+import InventoryComp from '../views/blog/inventory-comp.md'    
  
-
-import WebappDevops from '../views/blog/webapp-devops.md'
+ 
 
 import ErrorPage from "../views/error-page/Main";
 
@@ -55,19 +53,11 @@ function Router() {
             },
           
             {
-              path: "/blog/vibegraph",
-              element: <Vibegraph />,
+              path: "/blog/inventory-comp",
+              element: <InventoryComp />,
             },
 
-            {
-              path: "/blog/webapp-devops",
-              element: <WebappDevops />,
-            },
-
-            {
-              path: "/blog/degen-sql",
-              element: <DegenSql />,
-            },
+         
         
           
           ],

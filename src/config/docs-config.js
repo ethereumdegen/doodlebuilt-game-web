@@ -11,10 +11,8 @@ const config = {
          
           { to:'/blog', label:'Blog: Main' },
     
-          { to:'/blog/vibegraph', label:'Vibegraph' },
-          { to:'/blog/degen-sql', label:'Degen-SQL' },
-          { to:'/blog/webapp-devops', label:'Webapp Devops' },
-    
+          { to:'/blog/inventory-comp', label:'Inventory Component' },
+          
 
            
      
