@@ -24,26 +24,56 @@ The `InventoryComponent` provides methods for adding items to the inventory, set
 Inventory slots are represented by indices in the items HashMap. Slots 0 to 99 are reserved for equipment slots, while the actual inventory starts at slot 100.
 
 
-The InventoryContainer struct provides utility functions for working with inventory slots, such as converting between slot indices and slot coordinates, and getting the dimensions of the inventory container.
+The ItemSlotData struct stores data about each item including the item type loaded from a RON file [bevy-asset-loader] as well as ephemeral data like the stack quantity, durability, charges, and so forth.
 
 
 ```rust
-pub struct InventoryContainer {}
 
-impl InventoryContainer {
-    pub fn get_inventory_container_slot_offset() -> usize {
-        100
-    }
-
-    pub fn get_inventory_container_dimensions() -> [u32; 2] {
-        [10, 6]
-    }
-
-    // ...
+#[derive(  Debug, Clone, Serialize, Deserialize)]
+pub struct ItemSlotData {
+      item_type_name: String, //this should be short name like 'dagger' 
+      item_type : ItemType, 
+    
+      quantity: Option<u32>,  //only matters if stackable
+      durability: Option<u32>,
+      charges: Option<u32>,
+      enchantments: Option<Vec<String>>, //file stem of a condition type
+      rune: Option<String>,
 }
 
 ```
 
+
+
+```rust
+#[derive(Debug, Asset, Clone, Serialize, Deserialize)]
+pub(crate) struct ItemType {
+    pub render_name: String,
+
+    pub preview_model: Option<String>,
+    pub icon_texture: Option<String>,
+    pub icon_material: Option<EnvironmentMaterialType>,
+
+    pub inventory_container_dimensions: Option<[u32; 2]>,
+
+    pub model_swappable_materials: Option<SwappableMaterialsMap>,
+
+    pub item_model_type: ItemModelType,   
+    pub equipment_data: Option<EquipmentData>,
+}
+
+
+impl TypePath for ItemType {
+    fn short_type_path() -> &'static str {
+        "item.ron"
+    }
+    fn type_path() -> &'static str {
+        "item.ron"
+    }
+}
+
+
+```
 
 ## Inventory Events
 
@@ -99,13 +129,47 @@ fn handle_inventory_events(
                 charges,
                 auto_equip,
             } => {
-                // ...
-                let slot_index = inv_comp.find_best_slot_index_for_item_of_type(item_type);
+                
+                
+                 let Some(mut inv_comp) = inventory_query.get_mut(*inventory_entity).ok() else {
+                    continue;
+                };
+
+                //  let item_type_name =  item_type_name.clone();
+
+                let Some(item_type) =   item_system_data.item_types.get( item_type_name.as_str()  )   .map(|h| item_types.get(h)  ).flatten() else{
+                      warn!("no item data ");
+                      continue
+                } ;
+                   
+
+              
+
+                //let item_type_data_map = &item_system_data.item_types;
+ 
+
+                let equipment_slot_type = item_type
+                    .equipment_data
+                    .as_ref()
+                    .map(|data| data.equipment_slot_type);
+
+                let slot_index =
+                    inv_comp.find_best_slot_index_for_item_of_type(item_type);
+
+
                 let item_slot_data = ItemSlotData::new_from_item_type(item_type_name.clone(), item_type.clone());
-                let add_item_succeeded = inv_comp.try_add_item(item_slot_data.clone(), slot_index);
-                // ...
+
+                let add_item_succeeded = inv_comp.try_add_item(item_slot_data.clone() , slot_index  );
+
+                if let Err(e) = add_item_succeeded {
+                    warn!("{:?} ",e);
+                    warn!("need to spawn item at feet ...  ?");
+                    //spawn the item at chars feet but somehow make it NOT do interact ...
+                }
+
+
             }
-            // ...
+           
         }
     }
 }
@@ -119,26 +183,88 @@ The inventory component includes logic checking to ensure the validity of invent
 It takes into account factors such as whether the slot is in the equipment group, if the item type matches the equipment slot type, and if the slot is already occupied by another item.
 
 ```rust
-pub fn slot_is_valid_for_item(
-    &self,
-    item_slot_index: usize,
-    item_type_data: &ItemType,
-) -> Result<(), InventoryError> {
-    // ...
-    if item_slot_is_in_equipment_group {
-        if item_equipment_slot_type.is_none() || item_equipment_slot_type != equipment_slot_type_at_slot {
-            return Err(InventoryError::EquipmentSlotMismatch);
-        }
-    } else {
-        // ...
-        for container_slot_index in all_container_slots {
-            if occupied_slot_mask.contains(&container_slot_index) {
-                return Err(InventoryError::InventorySlotOccupied);
+
+
+    pub fn slot_is_valid_for_item(
+        &self,
+        item_slot_index: usize,
+        item_type_data: &ItemType
+        ) -> Result<(),InventoryError>{
+
+        let item_slot_is_in_equipment_group = item_slot_index < InventoryContainer::get_inventory_container_slot_offset();
+        
+ 
+
+
+        let equipment_slot_type_at_slot = EquipmentSlotType::from_inventory_slot_index( item_slot_index ) ; 
+        let item_equipment_slot_type = item_type_data.equipment_data.as_ref().map(|eq| eq.equipment_slot_type);
+
+
+        if item_slot_is_in_equipment_group {
+
+            if  item_equipment_slot_type.is_none() || 
+              item_equipment_slot_type != equipment_slot_type_at_slot  
+            {
+                return Err(InventoryError::EquipmentSlotMismatch);
             }
+        }else{
+
+                //find the mask of slots that are taken up by existing items... 
+
+            //let existing_items:HashMap<usize,ItemType> = HashMap::new();
+
+           
+         
+            let occupied_slot_mask: HashSet<usize> = self.items.iter().fold(HashSet::new(), |mut mask, (slot_index, item_slot_data)| {  //FIXME 
+                let item_dimensions = item_slot_data.item_type.inventory_container_dimensions.unwrap_or([1, 1]); //make sure this is set / correctly cached !!  not stale cache .. 
+                let all_item_slots = InventoryContainer::get_all_container_slots_for_item(*slot_index, item_dimensions);
+                mask.extend(all_item_slots);
+                mask
+            });
+
+            info!("occupied_slot_mask is {:?}",occupied_slot_mask);
+
+
+
+
+             let inventory_container_dimensions = InventoryContainer::get_inventory_container_dimensions();  // 10 by 6 
+             let item_container_dimensions = &item_type_data.inventory_container_dimensions;
+
+             let all_container_slots = InventoryContainer::get_all_container_slots_for_item(
+                item_slot_index,
+                 item_container_dimensions.unwrap_or(  [1,1] )
+              );
+
+
+             for container_slot_index in all_container_slots{
+
+                //make sure they are in bounds 
+                //let container_width = inventory_container_dimensions[0] as usize;
+                let container_slot_coords = InventoryContainer::slot_index_to_slot_coords(container_slot_index);
+
+                if container_slot_coords[0] >= inventory_container_dimensions[0] as usize {
+                    return Err(InventoryError::InventoryContainerBoundsExceeded);
+
+                }
+
+                if container_slot_coords[1] >= inventory_container_dimensions[1] as usize {
+                    return Err(InventoryError::InventoryContainerBoundsExceeded);
+
+                }
+
+                if occupied_slot_mask.contains( &container_slot_index ) {
+
+                     return Err(InventoryError::InventorySlotOccupied);
+                }
+
+             }
+
+
         }
+
+
+        return Ok(())
     }
-    // ...
-}
 ```
 
 
