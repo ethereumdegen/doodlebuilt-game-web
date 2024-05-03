@@ -5,7 +5,7 @@ import favicon from '@/assets/images/favicon_logo.png'
 import punkicon from '@/assets/images/punk1164.png'
 
 const config = {
-    title: 'Portfolio - ethereumdegen',
+    title: ' Doodlebuilt: Indie Games',
     tagline: '',
     url: 'https://ethereumdegen,com',
     baseURL: '/',
