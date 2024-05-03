@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 function ImageGallery() {
   const images = [
-    "/src/assets/images/blog/brokenspirit1.png",
+    "/blog/brokenspirit1.png",
      
     // Add more image URLs as needed
   ];

@@ -10,7 +10,7 @@ As an indie developer, I believe in the power of sharing knowledge and resources
 
  
 
-![Alt Text](/src/assets/images/blog/brokenspirit1.png)
+![Alt Text](/blog/brokenspirit1.png)
 
 
 

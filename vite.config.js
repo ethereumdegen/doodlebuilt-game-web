@@ -24,9 +24,9 @@ export default defineConfig({
   },
 
 
-  publicDir: 'assets',
+  publicDir: 'public',
   build: {
-    assetsInclude: ['src/assets/**.png', 'src/assets/**.jpg', 'src/assets/**.jpeg', 'src/assets/**.gif', 'src/assets/**.svg'],
+    assetsInclude: ['**/**.png', '**/**.jpg', '**/**.jpeg', '**/**.gif', '**/**.svg'],
   },
 
 });
