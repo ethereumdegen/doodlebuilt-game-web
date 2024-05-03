@@ -1,13 +1,47 @@
+# Indie Game Developer's Blog: Building "Broken Spirit" with Rust and Bevy
+
+Welcome to my blog, where I share my journey as an indie game developer building an open-world story RPG called "Broken Spirit" using Rust and the Bevy game engine. In this blog, I'll be sharing insights, tutorials, and code snippets from my development process.
+
+As an indie developer, I believe in the power of sharing knowledge and resources with the community. Through these blog posts, I aim to provide valuable information and code examples that can help fellow game developers in their own projects.
+
+## About "Broken Spirit"
+
+"Broken Spirit" is an immersive open-world RPG that takes players on a captivating journey filled with rich storytelling and engaging gameplay mechanics. Set in a vast and dynamic world, players will embark on quests, explore hidden secrets, and make meaningful choices that shape the narrative.
+
+ 
+
+![Alt Text](/src/assets/images/blog/brokenspirit1.png)
 
 
-# Ethereum Degen's Blog
 
-It is my mission to build open-source resources for the web3+defi  community. these are all the blogs about my open-source projects.  Feel free to fork and use my code to help you build for Ethereum and the next gen internet. 
+## Why Rust and Bevy?
 
-You will find templates for sign-in-with-ethereum using react, solidity token templates, and scripts for scraping chain events for building dapp frontends.   
+I chose to develop "Broken Spirit" using Rust and the Bevy game engine for several reasons:
 
-## Projects 
+1. **Performance**: Rust is known for its impressive performance and memory safety, making it an excellent choice for game development. It allows me to create a fast and efficient game engine that can handle the complexity of an open-world RPG.
 
-* [Vibegraph](/blog/vibegraph)
+2. **Expressiveness**: Rust's expressive syntax and powerful abstractions enable me to write clean and maintainable code. This is crucial for a large-scale project like "Broken Spirit," where code organization and readability are essential.
 
-* [DegenSql](/blog/degen-sql)
+3. **Bevy Engine**: Bevy is a modern and flexible game engine that seamlessly integrates with Rust. It provides a modular and composable architecture, making it easy to build complex game systems and extend functionality as needed.
+
+## Blog Content
+
+In this blog, you'll find a wide range of topics related to game development with Rust and Bevy. Some of the things I'll be covering include:
+
+- **Tutorials**: Step-by-step guides on implementing various game mechanics, such as inventory systems, combat, dialogue, and more.
+- **Code Snippets**: Reusable code examples that demonstrate how to solve common game development problems efficiently.
+- **Architecture Insights**: Discussions on designing scalable and maintainable game architectures using Rust and Bevy.
+- **Performance Optimization**: Tips and techniques for optimizing game performance, including profiling, benchmarking, and leveraging Rust's unique features.
+- **Game Design**: Insights into the creative process of designing an immersive open-world RPG, including world-building, quest design, and narrative development.
+
+## Latest Blog Post: Inventory Component in Bevy
+
+In my latest blog post, I dive deep into the implementation of the inventory component for "Broken Spirit." I explain how inventory slots work, how events are handled, and the logic checking involved. If you're interested in learning more about creating a flexible and extensible inventory system in Bevy, be sure to check out the [Inventory Component in Bevy: A Deep Dive](/blog/inventory-comp) post.
+
+## Stay Tuned
+
+I'm excited to share my game development journey with you through this blog. Stay tuned for more in-depth articles, tutorials, and code snippets as I progress with the development of "Broken Spirit."
+
+If you have any questions, suggestions, or just want to connect with me, feel free to reach out. I'm always happy to engage with fellow game developers and enthusiasts.
+
+Happy coding and gaming!

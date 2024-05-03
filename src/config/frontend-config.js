@@ -60,15 +60,18 @@ const config = {
             title: 'Community',
             items: [
             
+           
+
+              {
+                label: 'Indie DB',
+                href: 'https://www.indiedb.com/games/broken-spirit',
+              },
+              
               {
                 label: 'Twitter',
                 href: 'https://twitter.com/ethereumdegen',
               },
-
-              {
-                label: 'Degen Network',
-                href: 'https://ethereum-degen-network.mn.co/',
-              },
+             
             ],
           },
           {
@@ -88,7 +91,7 @@ const config = {
 
         socials:{
           twitter:"https://twitter.com/ethereumdegen",
-          github:"https://github.com/ethereumdegen/degen-portfolio"
+          github:"https://github.com/ethereumdegen"
         }
       }
     
