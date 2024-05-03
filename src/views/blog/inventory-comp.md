@@ -7,6 +7,9 @@ In this blog post, we'll explore the implementation of an inventory component fo
 
 The `InventoryComponent` is the core of the inventory system. It contains a `HashMap` called `items` that maps slot indices to `ItemSlotData`. It also has a vector called `initial_equipment` that stores the names of initial equipment items.
 
+
+All Units in my game get one of these.  Monsters use it to hold equipped weapons, chests use it to hold items which can be looted, dead monsters corpses use it so they can be looted, etc. 
+
 ```rust
 #[derive(Component, Default, Serialize, Deserialize, Clone, Debug)]
 pub struct InventoryComponent {
