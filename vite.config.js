@@ -22,4 +22,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
+
+  publicDir: 'assets',
+  build: {
+    assetsInclude: ['src/assets/**.png', 'src/assets/**.jpg', 'src/assets/**.jpeg', 'src/assets/**.gif', 'src/assets/**.svg'],
+  },
+
 });
+
+
+
+ 
