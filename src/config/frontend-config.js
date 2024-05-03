@@ -24,9 +24,8 @@ const config = {
         items: [
          
           { to:'/', label:'Home' },
-          { to:'/blog', label:'Blog' },
-          { to:'https://ethereum-degen-network.mn.co/', label:'Degen Network' },
-    
+          { to:'/blog', label:'Rust Gamedev Blog' },
+         
           
         ],
     },
