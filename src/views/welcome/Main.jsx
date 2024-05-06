@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 function ImageGallery() {
   const images = [
     "/blog/brokenspirit1.png",
+    "/blog/3deditor.png",
      
     // Add more image URLs as needed
   ];
