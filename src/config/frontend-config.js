@@ -1,7 +1,7 @@
 
  
 import homeImage from '@/assets/images/home_image_logo.png'
-import favicon from '@/assets/images/favicon_logo.png'
+import favicon from '@/assets/images/favicon.png'
 import punkicon from '@/assets/images/punk1164.png'
 
 const config = {
@@ -90,7 +90,7 @@ const config = {
   
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/ethereumdegen',
+                href: 'https://twitter.com/doodlebuilt',
               },
 
              
