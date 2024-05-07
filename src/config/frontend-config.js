@@ -66,11 +66,16 @@ const config = {
                 label: 'Indie DB',
                 href: 'https://www.indiedb.com/games/broken-spirit',
               },
-              
+
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/ethereumdegen',
+                label: 'Support & Donate',
+                href: 'https://ko-fi.com/doodlebuilt',
               },
+
+            
+            
+
+              
              
             ],
           },
@@ -81,6 +86,11 @@ const config = {
               {
                 label: 'GitHub',
                 href: 'https://github.com/ethereumdegen/degen-portfolio',
+              },
+  
+              {
+                label: 'Twitter',
+                href: 'https://twitter.com/ethereumdegen',
               },
 
              
