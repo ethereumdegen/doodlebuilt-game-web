@@ -10,7 +10,7 @@ import Welcome from '../views/welcome/Main'
     
 import Blog from '../views/blog/blog.md'   
 import InventoryComp from '../views/blog/inventory-comp.md'    
- 
+import TextureAtlas from '../views/blog/texture-atlas.md'    
  
 
 import ErrorPage from "../views/error-page/Main";
@@ -56,7 +56,10 @@ function Router() {
               path: "/blog/inventory-comp",
               element: <InventoryComp />,
             },
-
+            {
+              path: "/blog/texture-atlas",
+              element: <TextureAtlas />,
+            },
          
         
           

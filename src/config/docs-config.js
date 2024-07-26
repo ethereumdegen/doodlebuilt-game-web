@@ -14,6 +14,7 @@ const config = {
           { to:'/blog/inventory-comp', label:'Inventory Component' },
           
 
+          { to:'/blog/texture-atlas', label:'Texture Atlas Guide' },
            
      
           
