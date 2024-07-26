@@ -3,45 +3,26 @@ import { observer } from "mobx-react";
 import { Link } from 'react-router-dom';
 
 
+import ImageGallery from "@/views/components/image-gallery/Main.jsx";
  
 
-function ImageGallery() {
-  const images = [
-    "/blog/brokenspirit1.png",
-    "/blog/3deditor.png",
-     
-    // Add more image URLs as needed
-  ];
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
-
-  return (
-    <div className="w-full overflow-hidden  object-cover object-center"  style={{maxHeight: "600px" }}>
-      <img src={images[currentImageIndex]} alt="Gallery" className="w-full h-auto object-center" />
-    </div>
-  );
-}
-
+const gallery_image_paths = [
+  "/blog/brokenspirit1.png",
+  "/blog/3deditor.png",
+  "/blog/broken_spirit_14.png"
+   
+  // Add more image URLs as needed
+]; 
 function Home() {
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       <main className="flex-grow">
         <div className="container mx-auto px-4 pb-12">
           <section className="pt-16 pb-8">
-            <h1 className="text-4xl font-bold mb-4"> Doodlebuilt </h1>
-            <p className="text-lg mb-8 italic">Indie games that speak to your Spirit.</p>
+            <h1 className="text-4xl font-bold mb-4"> Spirit Editor </h1>
+            <p className="text-lg mb-8 italic">A map editor for the bevy game engine.   <Link to="https://github.com/ethereumdegen/spirit_editor" className="inline-block not-italic text-blue-500 text-sm" >[view on github]</Link> </p>
             <ImageGallery
-             
+               imagePaths={gallery_image_paths}
             />
           </section>
 
@@ -75,6 +56,9 @@ function Home() {
                
             </div>
           </section>
+
+
+          
         </div>
       </main>
     </div>
