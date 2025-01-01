@@ -712,45 +712,7 @@ fn update_inventory_menu_inventory_icons(
 
 ```
 
-
-
-This uses the crate turbo_atlas_icons which I published: 
-```
-
-
-impl UiIconSource for ItemTypeIconSource {
-    fn get_icon_name(&self, world: &World) -> Option<String> {
-        let item_types = world.resource::<Assets<ItemType>>();
-        let item_system_type_assets = world.resource::<ItemSystemTypeAssets>();
-
-        if let Some(item_type_handle) = item_system_type_assets.item_types.get(self.0.as_str()) {
-            if let Some(item_type) = item_types.get(item_type_handle) {
-                item_type.icon_texture.clone()
-            } else {
-                None
-            }
-        } else {
-            None
-        }
-    }
-
-    fn get_icons_handles_map<'a>(&'a self, world: &'a World) -> &'a TextureHandlesMap {
-        let images = world.resource::<TextureAssets>();
-        &images.item_icons
-    }
-
-    fn get_texture_atlas<'a>(&'a self, world: &'a World) -> &'a Option<TextureAtlasCombined> {
-        let texture_atlas_assets = world.resource::<TextureAtlasAssets>();
-
-        &texture_atlas_assets.item_icons_atlas
-    }
-}
-
-
-```
-
  
-
 
 ## TooltipDataSource 
 
@@ -812,7 +774,7 @@ impl TooltipDataSourceExt for InventoryItemSlotTooltipSource {
 ```
 
 
-I have a tooltip UI window that reads this data as follows : 
+I have a tooltip UI window that reads this data as follows, then uses the command 'set_tooltip_display_data' to update its own TextNodes as appropriate each frame , using a custom struct 'tooltip_display_data' which just has some String props or whatever else you need..  : 
 
 ```
 
