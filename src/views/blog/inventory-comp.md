@@ -50,7 +50,7 @@ pub struct ItemSlotData {
 ```
 
 
-I now use the Item Entity and its component to store all of this same data.  That way, I have more of an ECS friendly approach. Now, an item entity in my game has components such as ItemDurability, ItemQuantity, ItemType, and so forth.  The inventory system uses the Hashmap ( usize -> Entity) as a kind of pointer to look up information about any item via its components, typically using EntityRef or World. 
+I now use the Item Entity and its many components to store all of this same data.  That way, I have more of an ECS friendly approach. Now, an item entity in my game has components such as ItemDurability, ItemQuantity, ItemType, and so forth.  The inventory system uses the Hashmap ( usize -> Entity) as a kind of pointer to look up information about any item via its components, typically using EntityRef or World. 
 
 This is how I define an item type serialized in RON:
 
@@ -58,21 +58,52 @@ This is how I define an item type serialized in RON:
 ```rust
 #[derive(Debug, Asset, Clone, Serialize, Deserialize)]
 pub(crate) struct ItemType {
+   
     pub render_name: String,
 
+    pub description: Option<String>,
+
+    //use  a hashmap instead?
+    pub item_classifications: Option<HashSet<ItemClassification>>,
+
+    pub item_subtypes: Option<HashSet<ItemSubtype>>,
+    pub item_rarity: Option<ItemRarity>,
+
+    #[serde(default)]
+    pub item_spawns_unidentified: bool,
+
+    //  pub item_classifications: HashSet< ItemClassification >,
     pub preview_model: Option<String>,
     pub icon_texture: Option<String>,
     pub icon_material: Option<EnvironmentMaterialType>,
 
     pub inventory_container_dimensions: Option<[u32; 2]>,
 
-    pub model_swappable_materials: Option<SwappableMaterialsMap>,
+    pub model_swappable_materials: Option<SwappableMaterialsMap>, //move this into eq data ?
 
-    pub item_model_type: ItemModelType,   
-    pub equipment_data: Option<EquipmentData>,
+    pub item_model_type: ItemModelType,
+
+    pub max_durability: Option<u32>,
+
+
 }
 
  
+// allows me to add any number of 'classifications' to an item so it can be both an Equipment and be Socketed and be QuestItem for example.  
+// Each of these represents a component that gets added to the item entity on spawn. 
+ #[derive(Debug, Asset, Clone, Serialize, Deserialize, DiscriminantHashEq, Reflect)]
+pub enum ItemClassification {
+    Consumable(ConsumableItemData),
+    KeyUnique(KeyUniqueItemData),
+    Equipment(EquipmentItemData),
+    Socketed(SocketedItemData),
+    Gemstone(GemstoneItemData), //slots in to equipment
+    Formula(FormulaItemData),   // teaches you how to craft this formula (store in   comp on player)
+    QuestItem,
+    Extractable(ItemDisintegrationData), //can disintegrate
+    Reagent,
+    Misc,
+}
 
 
 ```
