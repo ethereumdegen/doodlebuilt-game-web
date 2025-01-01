@@ -598,12 +598,43 @@ I do realize that while this paradigm makes building UI incredibly easy, it is s
 
 ## UiIcon Source (dynamic) 
 
-A component that describes how to manipulate the ImageNode component on the same component by reading from World every frame. 
+A component that describes how to manipulate the ImageNode component on the same component by reading from World every frame. Works on the same paradigm as UIVisibility but instead of sending commands to mutate the Visibility component, it sends commands to mutate the ImageNode component.  
+
+See this crate !!   I bundled much of the code for this in here: 
+https://github.com/ethereumdegen/turbo_atlas_icons
 
 
 ```
 
 
+
+impl UiIconSource for ItemTypeIconSource {
+    fn get_icon_name(&self, world: &World) -> Option<String> {
+        let item_types = world.resource::<Assets<ItemType>>();
+        let item_system_type_assets = world.resource::<ItemSystemTypeAssets>();
+
+        if let Some(item_type_handle) = item_system_type_assets.item_types.get(self.0.as_str()) {
+            if let Some(item_type) = item_types.get(item_type_handle) {
+                item_type.icon_texture.clone()
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn get_icons_handles_map<'a>(&'a self, world: &'a World) -> &'a TextureHandlesMap {
+        let images = world.resource::<TextureAssets>();
+        &images.item_icons
+    }
+
+    fn get_texture_atlas<'a>(&'a self, world: &'a World) -> &'a Option<TextureAtlasCombined> {
+        let texture_atlas_assets = world.resource::<TextureAtlasAssets>();
+
+        &texture_atlas_assets.item_icons_atlas
+    }
+}
 
 
 ```
