@@ -1,12 +1,12 @@
-# Indie Game Developer's Blog: Building "Broken Spirit" with Rust and Bevy
+# Indie Game Developer's Blog: Building "Healing Spirit" with Rust and Bevy
 
-Welcome to my blog, where I share my journey as an indie game developer building an open-world story RPG called "Broken Spirit" using Rust and the Bevy game engine. In this blog, I'll be sharing insights, tutorials, and code snippets from my development process.
+Welcome to my blog, where I share my journey as an indie game developer building an open-world story RPG called "Healing Spirit" using Rust and the Bevy game engine. In this blog, I'll be sharing insights, tutorials, and code snippets from my development process.
 
 As an indie developer, I believe in the power of sharing knowledge and resources with the community. Through these blog posts, I aim to provide valuable information and code examples that can help fellow game developers in their own projects.
 
-## About "Broken Spirit"
+## About "Healing Spirit"
 
-"Broken Spirit" is an immersive open-world RPG that takes players on a captivating journey filled with rich storytelling and engaging gameplay mechanics. Set in a vast and dynamic world, players will embark on quests, explore hidden secrets, and make meaningful choices that shape the narrative.
+"Healing Spirit" is an old-school RPG that takes players on an open-world journey as a Cleric in a Fae realm.  
 
  
 
@@ -38,9 +38,9 @@ In this blog, you'll find a wide range of topics related to game development wit
 
 In my latest blog post, I dive deep into the implementation of the inventory component for "Broken Spirit." I explain how inventory slots work, how events are handled, and the logic checking involved. If you're interested in learning more about creating a flexible and extensible inventory system in Bevy, be sure to check out the [Inventory Component in Bevy: A Deep Dive](/blog/inventory-comp) post.
 
-## Stay Tuned
+## Connect
 
-I'm excited to share my game development journey with you through this blog. Stay tuned for more in-depth articles, tutorials, and code snippets as I progress with the development of "Broken Spirit."
+Check back for more in-depth articles, tutorials, and code snippets as I progress with the development of "Broken Spirit."
 
 If you have any questions, suggestions, or just want to connect with me, feel free to reach out. I'm always happy to engage with fellow game developers and enthusiasts.
 
