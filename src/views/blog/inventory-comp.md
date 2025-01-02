@@ -119,7 +119,7 @@ The InventoryEvent enum defines the different event types:
 pub enum InventoryEvent {
     AddItemToInventory {
         inventory_entity: Entity,
-        item_type_name: String,
+        item_entity: Entity,
          
         source_type: ItemAddSourceType,
         equip_to_slot_context: Option<EquipToSlotContext>, //describes HOW to auto equip
@@ -143,6 +143,7 @@ pub enum InventoryEvent {
 
 ```rust
 
+//helps describe the way to auto-equip a new item, if any 
 #[derive(Clone, Debug)]
 pub enum EquipToSlotContext {
     SpecificSlot(usize),
