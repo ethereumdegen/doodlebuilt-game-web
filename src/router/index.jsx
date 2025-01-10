@@ -12,7 +12,7 @@ import Blog from '../views/blog/blog.md'
 import InventoryComp from '../views/blog/inventory-comp.md'    
 import InventoryUi from '../views/blog/inventory-ui.md'   
 import Abilities from '../views/blog/abilities.md'   
-
+import SelectPicker from '../views/blog/select-picker.md'   
 import TextureAtlas from '../views/blog/texture-atlas.md'    
  
 
@@ -68,6 +68,11 @@ function Router() {
               {
               path: "/blog/abilities",
               element: <Abilities />,
+            },
+
+                {
+              path: "/blog/select-picker",
+              element: <SelectPicker />,
             },
 
             {
