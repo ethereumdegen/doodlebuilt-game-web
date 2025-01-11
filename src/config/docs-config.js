@@ -21,7 +21,7 @@ const config = {
           
 
           { to:'/blog/texture-atlas', label:'Texture Atlas Guide' },
-           
+          { to:'/blog/select-picker', label:'Select Picker UI' },
      
           
         ],
