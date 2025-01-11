@@ -69,6 +69,11 @@ function Router() {
               element: <InventoryUi />,
             },
 
+             {
+              path: "/blog/social-relations",
+              element: <SocialRelations />,
+            },
+
               {
               path: "/blog/abilities",
               element: <Abilities />,
