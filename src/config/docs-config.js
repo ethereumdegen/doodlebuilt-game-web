@@ -16,6 +16,8 @@ const config = {
           { to:'/blog/inventory-ui', label:'Inventory UI' },
 
           { to:'/blog/abilities', label:'Abilities System' },
+
+           { to:'/blog/social-relations', label:'Social Relations' },
           
 
           { to:'/blog/texture-atlas', label:'Texture Atlas Guide' },

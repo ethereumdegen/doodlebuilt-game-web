@@ -12,7 +12,7 @@ import Blog from '../views/blog/blog.md'
 import InventoryComp from '../views/blog/inventory-comp.md'    
 import InventoryUi from '../views/blog/inventory-ui.md'   
 import Abilities from '../views/blog/abilities.md'   
-
+import SocialRelations from '../views/blog/social-relations.md'   
 import TextureAtlas from '../views/blog/texture-atlas.md'    
  
 
