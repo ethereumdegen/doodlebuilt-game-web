@@ -7,8 +7,11 @@
 ## Introduction
 
 In RPG games, character interactions can significantly impact gameplay, influencing player decisions and character development. This blog post introduces a custom social relations system built using the Bevy game engine. Our goal is to dynamically manage relationships through a scoring system that adjusts based on player actions, such as combat or dialogue choices.
+ 
 
-## System Overview
+
+
+ 
 
 Our system consists of:
 - **SocialRelationEdgesMap**: A component that stores relationships and scores between entities.
@@ -19,12 +22,8 @@ These components work together to update and manage how entities perceive each o
 
 
 
-
-```rust
- 
-```
-
 ### Component and Event Declarations
+
 
 A component named Social Relation Edges Map is used to store relation edges for each other entity, effectively like a mini 'bevy components' set that is locally scoped per other entity.  This is made possible by DiscriminantHashEq which implements Hash in a way in which only the discriminant is considered for Eq - not any of the props in the variant.  
 
