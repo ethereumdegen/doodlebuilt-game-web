@@ -14,8 +14,11 @@ All 'Units' in my game get one of these.  Monsters use it to hold equipped weapo
 #[derive(Component, Default, Serialize, Deserialize, Clone, Debug)]
 pub struct InventoryComponent {
    pub items_map: HashMap<usize, Entity>,
-   needs_refresh:bool // optional flag to help force 'changed' since it doesnt automatically propogate through the hashmap when an item entity 'changes'
+  
 }
+
+
+
 
 ```
 
@@ -159,55 +162,57 @@ pub enum EquipToSlotContext {
 
 ## Handling Inventory Events
 
-The handle_add_item_to_inventory_events function is responsible for processing inventory events.  Tt retrieves the InventoryComponent for the specified entity, finds the best slot index for the item based on its type, and attempts to add the item to the inventory.  The entire time, the item remains an entity but will lose its 'spatial bundle' meaning its transform and visibility components once it 'goes into the inventory'.  It keeps its other components like durability and enchantments.! 
+I recently refactored my code for adding an item to an inventory by turning it into an EntityCommand instead of an Event which made the code much simpler since it runs more in 'single-thread' versus 'parallel execution' essentially.  This command retrieves the InventoryComponent for the specified entity, finds the best slot index for the item based on its type, and attempts to add the item to the inventory.  The entire time, the item remains an entity but will lose its 'spatial bundle' meaning its transform and visibility components once it 'goes into the inventory'.  It keeps its other components like durability and enchantments.! 
 
 ```rust 
 
 
 
 
-fn handle_add_item_to_inventory_events(
-    mut commands: Commands,
+struct AddItemToInventoryCommand{
 
-    mut inventory_events: EventReader<InventoryEvent>,
 
-    //really want an entity ref to get the combined data so we do this to get around the borrow checker 
-    mut item_param_set: ParamSet<(
-        Query<EntityRef>, //item entity ref !!
-        Query<&Children, With<InventoryComponent>>,
-        Query<&PersistentUUID>,
-         
-    )>,
-) {
-    let mut item_slots_modified_this_cycle: HashSet<usize> = HashSet::new();
+      inventory_entity: Entity, 
+      source_type: ItemAddSourceType,
+      equip_to_slot_context : Option<EquipToSlotContext>
 
-    for evt in inventory_events.read() {
-        match evt {
-            InventoryEvent::AddItemToInventory {
-                inventory_entity,
-                item_entity,
-              
-                source_type: _,
 
-                equip_to_slot_context,  
+} 
 
-            } => {
-                let mut populated_item_slots = HashMap::new();
+
+
+
+
+impl EntityCommand for AddItemToInventoryCommand {
+    fn apply(self, item_entity: Entity, world: &mut World) {
+
+
+
+        let inventory_entity = self.inventory_entity;
+        let source_type = self.source_type;
+        let equip_to_slot_context = self.equip_to_slot_context; 
+
+          let mut populated_item_slots = HashMap::new();
 
                 info!("adding item to inventory 1 {:?}", inventory_entity);
 
-                let Some(inventory_entity_persistent_uuid) =
-                    item_param_set.p2().get(*inventory_entity).ok().cloned()
+                let Some(inventory_entity_persistent_uuid) = world.get::<PersistentUUID>( inventory_entity) 
                 else {
                     warn!("Inventory entity has no persistent uuid ");
-                    continue;
+                    panic!("Inventory entity has no persistent uuid ");
+                    return;
                 };
 
+                let inventory_entity_persistent_uuid = inventory_entity_persistent_uuid.clone() ;
+
+
+
                 let mut all_inventory_children = Vec::new();
- 
+
+                // let mut all_inventory_slot_components = Vec::new();
                 let mut item_slots_map: HashMap<usize, Entity> = HashMap::new();
 
-                if let Some(inventory_children) = item_param_set.p1().get(*inventory_entity).ok() {
+                if let Some(inventory_children) = world.get::<Children>( inventory_entity)  {
                     for inventory_child in inventory_children {
                         all_inventory_children.push(inventory_child.clone());
                     }
@@ -215,14 +220,18 @@ fn handle_add_item_to_inventory_events(
 
                 // --- find populated item slots ---
                 for inventory_child in all_inventory_children {
-                    if let Some(item_entity_ref) = item_param_set.p0().get(inventory_child).ok() {
+                    if let Some(item_entity_ref) = world.get_entity(inventory_child).ok()  {
                         let Some(_inv_item_comp) = item_entity_ref.get::<ItemComponent>() else {
+
+                               //panic!("could not equip item - no ItemComponent ");
                             continue;
                         };
 
                         let Some(item_in_inventory_slot_comp) =
                             item_entity_ref.get::<ItemInInventorySlot>()
                         else {
+                            panic!("could not equip item - ItemInInventorySlot ");
+
                             continue;
                         };
 
@@ -238,13 +247,16 @@ fn handle_add_item_to_inventory_events(
                         populated_item_slots
                             .insert(inv_slot_index, PopulatedInventorySlot { item_dimensions });
 
-                       
+                        //all_inventory_slot_components.push( item_in_inventory_slot_comp.clone( ) ) ;
                         item_slots_map.insert(inv_slot_index, item_entity.clone());
                     }
                 }
 
-                if let Some(item_entity_ref) = item_param_set.p0().get(*item_entity).ok() {
-                    
+                if let Some(item_entity_ref) =  world.get_entity(item_entity).ok() {
+                    // let item_type_name = &item_comp.item_type_name;
+
+                    //  let equip_to_slot_context = &equip_to_slot_context ;
+
                     let equip_slot_index = equip_to_slot_context
                         .as_ref()
                         .map(|sc| {
@@ -252,107 +264,99 @@ fn handle_add_item_to_inventory_events(
                                 &item_slots_map,
                                 &item_entity_ref,
                                 &populated_item_slots,
-                                &item_slots_modified_this_cycle,
+                            //   &HashSet::new() ,//,  &item_slots_modified_this_cycle.get(inventory_entity).unwrap_or(&HashSet::new()),
                                 &sc,
                             )
                         })
                         .flatten();
 
-                    
+                    // make sure same slot index isnt added to twice in one cycle !
+                    //this is a bug rn because commands has a one-frame delay !
 
                     let add_item_succeeded = InventoryComponent::get_can_add_item(
                         &item_slots_map,
-                        &item_slots_modified_this_cycle,
+                      //  &HashSet::new(), //, &item_slots_modified_this_cycle.get(inventory_entity).unwrap_or(&HashSet::new()),
                         &item_entity_ref,
-                        
+                        // item_data_combined.clone(),
                         equip_slot_index,
                         &populated_item_slots,
                     );
 
                     if let Ok(item_slot_index) = add_item_succeeded {
-                        item_slots_modified_this_cycle.insert(item_slot_index);
+ 
 
-                        commands.entity(*item_entity).remove_spatial_bundle();
+                        world.commands().entity(item_entity).queue(RemoveSpatialBundle);  
 
-                         
+                        //    let item_entity_persistent_uuid = persistent_uuid_comp;
 
                         info!(
                             "item added to inv persistent {:?} {:?}",
                             inventory_entity_persistent_uuid, inventory_entity
                         );
 
-                        //this has to happen before hook !
-                        commands.entity(*item_entity).set_parent(*inventory_entity);
+                        //this has to happen before hook !  from ItemInInventoryPersistent !  
+                        world.commands().entity(item_entity)
+                                .set_parent(inventory_entity);
 
-                        commands
-                            .entity(*item_entity)
+                        world.commands()
+                            .entity(item_entity)
                             .remove::<EnchantmentMaterialLink>();
 
-                        commands.entity(*item_entity).insert((
+                            //turn this into a command ?
+                        world.commands().entity(item_entity).insert((
                             //ItemInInventory(inventory_entity.clone()),
-                            ItemInInventorySlot(item_slot_index),  //this runs a hook ! then that sets the item map hashmap 
+                            ItemInInventorySlot(item_slot_index),
                             ItemInInventoryPersistent(inventory_entity_persistent_uuid.clone()),
-                            NoInteractionSensor, //remove the interact sensor
-                            NoItemModel,         
+                            NoInteractionSensor, //remove the sensor
+                            NoItemModel,         //this does nothing yet ?
                         ));
 
-                        
+                        //  inventory_sound_event_writer.send( InventorySoundEvent::PlaySoundForItemInSlot { slot_index: item_slot_index } );
                     }
 
                     if let Err(e) = add_item_succeeded {
                         warn!("{:?} ", e);
                         warn!("need to spawn item at feet ...  ?");
-                        
+
+                         panic!("need to spawn item at feet ...  ?");
+                        //spawn the item at chars feet but somehow make it NOT do interact ...
                     }
-                    
+                    // }
                 }
 
-                
-            }
 
-            _ => {}
-        }
+
     }
 }
-
-// unsets item map and such ..
-fn handle_remove_item_from_inventory_events(
-    mut commands: Commands,
-
-    mut inventory_events: EventReader<InventoryEvent>,
-) {
-    for evt in inventory_events.read() {
-        match evt {
-            InventoryEvent::RemoveItemFromInventory {
-                inventory_entity,
-
-                item_entity,
-            } => {
-                
-                
-
-                //be sure to remove this first due to hooks..
-                commands
-                    .entity(*item_entity)
-                    .remove::<ItemInInventorySlot>();
-
-                commands.entity(*item_entity).remove::<ItemIsEquipped>();
-                commands
-                    .entity(*item_entity)
-                    .remove::<NoInteractionSensor>();
-                commands.entity(*item_entity).remove::<NoItemModel>();
-                commands
-                    .entity(*item_entity)
-                    .remove::<EnchantmentMaterialLink>();
-                commands
-                    .entity(*item_entity)
-                    .remove::<ItemInInventoryPersistent>();
  
-            }
+// finish me ! 
+struct RemoveItemFromInventoryCommand  ;
 
-            _ => {}
-        }
-    }
+
+impl EntityCommand for RemoveItemFromInventoryCommand {
+    fn apply(self, item_entity: Entity, world: &mut World) { 
+
+      //  let inventory_entity = self.inventory_entity ;
+
+           let mut commands = world.commands(); 
+
+           commands
+                .entity(item_entity)
+                .remove::<ItemInInventorySlot>();
+
+            commands.entity(item_entity).remove::<ItemIsEquipped>();
+            commands
+                .entity(item_entity)
+                .remove::<NoInteractionSensor>();
+            commands.entity(item_entity).remove::<NoItemModel>();
+            commands
+                .entity(item_entity)
+                .remove::<EnchantmentMaterialLink>();
+            commands
+                .entity(item_entity)
+                .remove::<ItemInInventoryPersistent>();
+
+ }
 }
 
 
@@ -361,7 +365,71 @@ fn handle_remove_item_from_inventory_events(
 ```
 
 
-Since bevy 0.14, I upgraded this system to account for invariants by inventing the components ItemInInventorySlot and making it run a hook on insert that mutates the inventory components hashmap like so: 
+
+I am able to cascade changes in items to the inventory automatically like this 
+
+```rust
+
+
+fn cascade_item_changes_to_inventory(
+    item_query: Query<
+        (Entity, &ItemComponent, &ItemInInventoryPersistent),
+        Or<(
+            Changed<ItemComponent>,
+            Changed<ItemInInventorySlot>,
+            Changed<ItemPersistentEffectsComponent>,
+        )>,
+    >,
+ 
+    mut commands:Commands, 
+
+    persistent_uuid_entity_lookup: Res<PersistentUuidLookupResource>,
+) {
+    for (_item_entity, _item_comp, item_in_inv) in item_query.iter() {
+        let inventory_entity_persistent_uuid = item_in_inv.get_uuid();
+
+        let Some(inventory_entity) = persistent_uuid_entity_lookup
+            .persistent_uuids_map
+            .get(&inventory_entity_persistent_uuid)
+        else {
+            continue;
+        };
+
+
+        if let Some(mut cmd) = commands.get_entity(*inventory_entity) {
+            cmd.queue(InventoryForceRefresh) ;
+        }
+
+    
+    }
+}
+
+
+
+pub struct InventoryForceRefresh ;
+
+impl EntityCommand for InventoryForceRefresh { 
+
+    fn apply(self, entity:Entity, world: &mut World) { 
+
+        if let Some(mut inventory_comp) = world.get_mut::<InventoryComponent>(entity) {
+ 
+            inventory_comp.set_changed();
+            
+        }else {
+            warn!("called inventory force refresh on a non-inventory");
+        }
+
+     }
+}
+
+
+```
+
+
+
+
+Since bevy 0.14, I upgraded this system to account for invariants by inventing the components ItemInInventorySlot and making it run a hook on insert that mutates the inventory components hashmap like so.  I do a similar hook for PersistentUUIDs per entity. 
 
 ```
 
