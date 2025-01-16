@@ -614,51 +614,41 @@ impl InstantEffectArchetype for DealDamageInstantEffect {
 ```
 
 
-When I broadcast an event to apply an instant effect from one entity to a target entity, it is handled like this 
+I used to broadcast an event to apply an instant effect from one entity to a target entity, but now I use a command since this makes it much more straightforward to access &mut World versus using an Event.  This command is queued , for example, when a Unit casts an ability.  The ability data (specified in RON) is deserialized, then the array of InstantEffects is looped through and for each one, this command is queued.  That performs the ability effects , which were specified in the RON file, onto the bevy world.  
+
 
 ```
 
 
 
-#[derive(Event, Debug, Clone)]
-pub struct ApplyInstantEffectEvent {
+#[derive( Debug, Clone)]
+pub struct ApplyInstantEffectCommand {
     pub effect_application: InstantEffectApplication,
     pub source_entity: Option<Entity>,
     pub target_entity: Option<Entity>, //targets ?
     pub contact_position: Option<Vec3>,
 }
+impl Command for ApplyInstantEffectCommand {
 
 
 
-fn apply_instant_effects(mut world: &mut World) {
-    let mut effects_to_apply = Vec::new();
+    fn apply(self, world: &mut  World) { 
 
-    world.resource_scope(
-        |world, mut cached_state: Mut<ApplyInstantEffectsEventReaderState>| {
-            let mut event_reader = cached_state.event_state.get_mut(world);
 
-            for evt in event_reader.read() {
-                effects_to_apply.push(evt.clone());
-            }
-        },
-    );
+        let effect_application = self.effect_application.clone();
+        let source = self.source_entity;
+        let target = self.target_entity;
+        let contact_position = self.contact_position;
 
-    for evt in effects_to_apply {
-        let effect_application = evt.effect_application.clone();
-        let source = evt.source_entity;
-        let target = evt.target_entity;
-        let contact_position = evt.contact_position;
+        effect_application.apply_to_world(source, target, contact_position, world);
 
-        effect_application.apply_to_world(source, target, contact_position, &mut world);
     }
 }
-
-
 
 ```
 
 
-And this took me about a full day to figure out and more days to refactor and improve but I love how I have about 20 different kinds of instant effects, each with their own .rs file, and they accept &World and they are RON friendly.  So that is the gist !!! 
+  I love how I have about 20 different kinds of instant effects, each with their own .rs file, and they accept &World and they are RON friendly.  So that is the gist !!! 
 
 
 And that is basically it !! There are more states such as Precast, StartCasting, Casting but they work almost the same as StartPrecast.   Some of them keep track of a time delay in order to determine when the set the ability state to the next as opposed to doing it immediately like the earlier systems.  
